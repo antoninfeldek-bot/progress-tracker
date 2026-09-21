@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="cs" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USA Exchange Progress Tracker 🇺🇸✈️🇨🇿</title>
+    <!-- Web App & Mobile Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="USA Tracker">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="apple-touch-icon" href="https://fav.farm/🇺🇸">
+    <link rel="icon" href="https://fav.farm/🇺🇸">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        usaRed: '#ef4444',
+                        usaBlue: '#3b82f6',
+                        usaNavy: '#0f172a',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: #f8fafc;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-card-hover {
+            transition: all 0.3s ease;
+        }
+        .glass-card-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.2);
+            border-color: rgba(99, 102, 241, 0.4);
+        }
+        .progress-glow {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="pb-12 px-3 sm:px-6">
+
+    <div class="max-w-6xl mx-auto pt-6 sm:pt-10">
+        
+        <!-- Header -->
+        <header class="text-center mb-8 glass-card p-6 rounded-3xl relative overflow-hidden shadow-2xl">
+            <div class="absolute -right-10 -top-10 w-40 h-40 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-red-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs sm:text-sm font-semibold mb-3">
+                <span>🇺🇸 Exchange Year Tracker</span>
+                <span class="text-slate-500">•</span>
+                <span>🇨🇿 Cesta Zpátky</span>
+            </div>
+            
+            <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-300 to-red-400">
+                Už Jsem Skoro Doma! ✈️
+            </h1>
+            <p class="text-slate-400 mt-2 text-sm sm:text-base max-w-xl mx-auto">
+                Každá sekunda v USA tě přibližuje k návratu. Tady vidíš, jak rychle ten čas ve skutečnosti utíká!
+            </p>
+
+            <!-- Quick Action Controls -->
+            <div class="mt-4 flex flex-wrap justify-center gap-3">
+                <button onclick="toggleSettingsModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-medium rounded-xl border border-slate-700 transition flex items-center gap-2">
+                    <i class="fa-solid fa-gear text-indigo-400"></i> Upravit data pobytu
+                </button>
+                <button onclick="toggleHomeScreenModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-medium rounded-xl border border-slate-700 transition flex items-center gap-2">
+                    <i class="fa-solid fa-mobile-screen-button text-emerald-400"></i> Přidat na plochu
+                </button>
+                <button onclick="triggerConfetti()" class="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-slate-950 font-bold text-xs sm:text-sm rounded-xl shadow-lg transition flex items-center gap-2">
+                    <i class="fa-solid fa-party-horn"></i> Oslavit pokrok! 🎉
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Progress Showcase -->
+        <section class="glass-card rounded-3xl p-6 sm:p-8 mb-8 shadow-xl relative">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-4">
+                <div>
+                    <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Celkový Progres Pobytu</span>
+                    <div class="flex items-baseline gap-3">
+                        <h2 id="percentText" class="text-4xl sm:text-6xl font-black text-white tracking-tight">0.0000%</h2>
+                        <span id="daysRemainingBadge" class="text-sm font-bold px-3 py-1 bg-red-500/20 text-red-400 border border-red-500/30 rounded-full">
+                            nacitání...
+                        </span>
+                    </div>
+                </div>
+                <div class="text-left sm:text-right text-xs sm:text-sm text-slate-400 font-mono">
+                    <div>Začátek: <span id="displayStartDate" class="text-slate-200 font-semibold">-</span></div>
+                    <div>Konec: <span id="displayEndDate" class="text-indigo-400 font-semibold">-</span></div>
+                </div>
+            </div>
+
+            <!-- Big Interactive Bar -->
+            <div class="relative w-full h-8 bg-slate-900/80 rounded-2xl overflow-hidden p-1 border border-slate-700/60 shadow-inner mb-6">
+                <div id="progressBar" class="h-full bg-gradient-to-r from-blue-600 via-indigo-500 to-red-500 rounded-xl transition-all duration-300 progress-glow relative" style="width: 0%">
+                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/60 animate-pulse rounded-r-xl"></div>
+                </div>
+            </div>
+
+            <!-- Countdown Precision Stats Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                <div class="bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
+                    <div id="statDays" class="text-2xl sm:text-3xl font-bold text-blue-400 font-mono">0</div>
+                    <div class="text-xs text-slate-400 mt-0.5">Dní zbývá</div>
+                </div>
+                <div class="bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
+                    <div id="statHours" class="text-2xl sm:text-3xl font-bold text-indigo-400 font-mono">0</div>
+                    <div class="text-xs text-slate-400 mt-0.5">Hodin zbývá</div>
+                </div>
+                <div class="bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
+                    <div id="statMinutes" class="text-2xl sm:text-3xl font-bold text-violet-400 font-mono">0</div>
+                    <div class="text-xs text-slate-400 mt-0.5">Minut zbývá</div>
+                </div>
+                <div class="bg-slate-900/60 p-3.5 rounded-2xl border border-slate-800">
+                    <div id="statSeconds" class="text-2xl sm:text-3xl font-bold text-red-400 font-mono">0</div>
+                    <div class="text-xs text-slate-400 mt-0.5">Sekund zbývá</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Relatable Comparisons Grid -->
+        <section class="mb-10">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-2">
+                <div>
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-stopwatch text-amber-400"></i>
+                        Zbývající čas v přirovnáních
+                    </h2>
+                    <p class="text-slate-400 text-sm">Abys viděl/a, že už je to vlastně za pár chvil! 😉</p>
+                </div>
+                <div class="text-xs text-indigo-300 bg-indigo-950/60 border border-indigo-800/50 px-3 py-1.5 rounded-xl">
+                    ⚡ Aktualizuje se neustále
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="comparisonsContainer">
+                <!-- Dynamic cards will be injected here via JS -->
+            </div>
+        </section>
+
+        <!-- Custom Comparison Creator -->
+        <section class="glass-card rounded-3xl p-6 mb-10 border border-indigo-500/20">
+            <h3 class="text-lg font-bold text-white mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-plus-circle text-indigo-400"></i>
+                Přidej své vlastní přirovnání
+            </h3>
+            <p class="text-slate-400 text-xs sm:text-sm mb-4">Máš něco konkrétního, na co měříš čas? Přidej si vlastní jednotku (např. "Školních hodin", "Cvičení ve fitku", "Tréninků").</p>
+            
+            <form id="customMetricForm" onsubmit="addCustomMetric(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                <input type="text" id="customName" placeholder="Název (např. Epizod zaklínače)" required class="sm:col-span-5 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                <input type="number" step="0.1" id="customHours" placeholder="Trvání jedné v hodinách (např. 1)" required class="sm:col-span-4 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                <button type="submit" class="sm:col-span-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm rounded-xl py-2.5 transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Přidat karta
+                </button>
+            </form>
+
+            <div id="customMetricsList" class="mt-4 flex flex-wrap gap-2"></div>
+        </section>
+
+        <!-- Milestones & US Holidays Roadmap -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+            
+            <!-- Percentage Milestones -->
+            <section class="glass-card rounded-3xl p-6">
+                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-flag-checkered text-emerald-400"></i>
+                    Milníky pobytu
+                </h3>
+                <div class="space-y-3" id="milestonesContainer">
+                    <!-- Dynamic Milestones -->
+                </div>
+            </section>
+
+            <!-- US Holidays Countdown -->
+            <section class="glass-card rounded-3xl p-6">
+                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-star text-amber-400"></i>
+                    Americké události & Svátky
+                </h3>
+                <div class="space-y-3" id="holidaysContainer">
+                    <!-- Dynamic Holidays -->
+                </div>
+            </section>
+
+        </div>
+
+        <!-- USA Exchange Bucket List -->
+        <section class="glass-card rounded-3xl p-6 sm:p-8 mb-10">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-check text-red-400"></i>
+                        USA Exchange Bucket List
+                    </h3>
+                    <p class="text-slate-400 text-xs sm:text-sm">Věci, které musíš stihnout, než poletíš domů!</p>
+                </div>
+                <span id="bucketListScore" class="text-xs sm:text-sm font-bold px-3 py-1 bg-slate-800 text-indigo-300 rounded-full border border-slate-700">
+                    0 / 0 splněno
+                </span>
+            </div>
+
+            <!-- Dynamic Bucket Item Addition Form -->
+            <form id="addBucketForm" onsubmit="addBucketItem(event)" class="mb-4 flex gap-2">
+                <input type="text" id="newBucketText" placeholder="Přidej vlastní cíl (např. Navštívit Grand Canyon)..." required class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                <button type="submit" class="px-4 py-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-semibold text-xs sm:text-sm rounded-xl transition flex items-center gap-1.5 shrink-0 shadow-lg">
+                    <i class="fa-solid fa-plus"></i> Přidat cíl
+                </button>
+            </form>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="bucketListContainer">
+                <!-- Dynamic Bucket Items -->
+            </div>
+        </section>
+
+        <!-- Daily Motivation Quote -->
+        <section class="glass-card rounded-3xl p-6 text-center relative overflow-hidden mb-10">
+            <div class="text-amber-400 text-3xl mb-2"><i class="fa-solid fa-quote-left"></i></div>
+            <p id="quoteText" class="text-slate-200 text-base sm:text-lg font-medium italic mb-3">
+                "Užívej si každý den v USA, i ty náročné. Až budeš doma v ČR, budeš na to vzpomínat celý život!"
+            </p>
+            <button onclick="nextQuote()" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold underline cursor-pointer">
+                Nová myšlenka 🔄
+            </button>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center text-slate-500 text-xs py-4">
+            <p>Vytvořeno pro tvůj nezapomenutelný rok v Americe 🇺🇸 • Šťastný návrat domů! 🇨🇿</p>
+        </footer>
+
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+        <div class="glass-card rounded-3xl p-6 sm:p-8 max-w-md w-full border border-slate-700 shadow-2xl relative">
+            <button onclick="toggleSettingsModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <h3 class="text-xl font-bold text-white mb-1">Upravit data pobytu</h3>
+            <p class="text-slate-400 text-xs mb-6">Nastav přesný datum začátku a příletu domů.</p>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Datum příjezdu do USA (Začátek)</label>
+                    <input type="date" id="inputStartDate" onchange="saveSettings()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Datum odletu domů 🇨🇿 (Konec)</label>
+                    <input type="date" id="inputEndDate" onchange="saveSettings()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+            </div>
+
+            <div class="mt-6 flex gap-3">
+                <button onclick="saveSettings()" class="flex-1 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold py-2.5 rounded-xl transition text-sm shadow-lg flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-check"></i> Uložit změny
+                </button>
+                <button onclick="resetDefaults()" class="px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold py-2.5 rounded-xl transition text-xs border border-slate-700">
+                    Obnovit
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Home Screen Install Instructions Modal -->
+    <div id="homeScreenModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+        <div class="glass-card rounded-3xl p-6 sm:p-8 max-w-md w-full border border-slate-700 shadow-2xl relative">
+            <button onclick="toggleHomeScreenModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-mobile-screen-button text-emerald-400"></i>
+                Ulož si tracker na plochu
+            </h3>
+            <p class="text-slate-400 text-xs mb-6">Měj svůj odpočet a bucket list přístupný na jedno klepnutí přímo z domovské obrazovky jako aplikaci!</p>
+
+            <div class="space-y-4 text-xs sm:text-sm">
+                <!-- iOS Instructions -->
+                <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+                    <div class="font-bold text-indigo-400 mb-1 flex items-center gap-2">
+                        <i class="fa-brands fa-apple text-base"></i> iPhone / iPad (Safari)
+                    </div>
+                    <ol class="list-decimal list-inside text-slate-300 space-y-1">
+                        <li>Klepni na tlačítko <strong>Sdílet</strong> <i class="fa-solid fa-share-nodes text-blue-400"></i> dole v Safari.</li>
+                        <li>Projeď dolů a vyber <strong>"Přidat na plochu"</strong> <i class="fa-regular fa-square-plus text-emerald-400"></i>.</li>
+                        <li>Potvrď kliknutím na <strong>Přidat</strong> vpravo nahoře.</li>
+                    </ol>
+                </div>
+
+                <!-- Android Instructions -->
+                <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+                    <div class="font-bold text-amber-400 mb-1 flex items-center gap-2">
+                        <i class="fa-brands fa-android text-base"></i> Android (Chrome)
+                    </div>
+                    <ol class="list-decimal list-inside text-slate-300 space-y-1">
+                        <li>Klepni na <strong>3 tečky</strong> <i class="fa-solid fa-ellipsis-vertical text-amber-400"></i> vpravo nahoře v Chrome.</li>
+                        <li>Zvol <strong>"Přidat na plochu"</strong> nebo <strong>"Instalovat aplikaci"</strong>.</li>
+                        <li>Potvrď přidání ikony na plochu.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <button onclick="toggleHomeScreenModal()" class="mt-6 w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 rounded-xl transition text-sm">
+                Rozumím 👍
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Default Config: Start around end of Aug 2026, End on June 5, 2027
+        const DEFAULT_START = "2026-08-25";
+        const DEFAULT_END = "2027-06-05";
+
+        let config = {
+            startDate: localStorage.getItem('usa_start_date') || DEFAULT_START,
+            endDate: localStorage.getItem('usa_end_date') || DEFAULT_END,
+            customMetrics: JSON.parse(localStorage.getItem('usa_custom_metrics') || '[]'),
+            bucketList: JSON.parse(localStorage.getItem('usa_bucket_list') || 'null')
+        };
+
+        // Default Bucket List Items
+        const DEFAULT_BUCKET_LIST = [
+            { id: 1, text: "Jít na středoškolský americký fotbal 🏈", done: false },
+            { id: 2, text: "Oslavit opravdový Thanksgiving (Díkůvzdání) 🦃", done: false },
+            { id: 3, text: "Ochutnat In-N-Out / Chipotle / Chick-fil-A 🍔", done: false },
+            { id: 4, text: "Zažít klasický Pep Rally ve škole 📣", done: false },
+            { id: 5, text: "Koupit si typický merch s logem školy 🏫", done: false },
+            { id: 6, text: "Vyrazit na Prom / Homecoming ples 💃🕺", done: false },
+            { id: 7, text: "Vyzkoušet S'mores u táboráku 🍫🔥", done: false },
+            { id: 8, text: "Koupit si pořádné americké sladkosti v Targetu 🛒", done: false }
+        ];
+
+        if (!config.bucketList) {
+            config.bucketList = DEFAULT_BUCKET_LIST;
+        }
+
+        // Base Comparison Items (Item name, icon, duration in hours, unit label, comment)
+        const BASE_COMPARISONS = [
+            { id: 'sleeps', icon: 'fa-bed', name: 'Spánků (nocí)', hours: 24, text: 'Ranních probuzení v USA', color: 'from-blue-500/20 to-indigo-500/20 border-blue-500/30' },
+            { id: 'weekends', icon: 'fa-sun', name: 'Víkendů', hours: 168, text: 'Sobot a nedělí', color: 'from-amber-500/20 to-orange-500/20 border-amber-500/30' },
+            { id: 'lotr', icon: 'fa-ring', name: 'Trilogií Pán Prstenů', hours: 11.4, text: 'Extended Cut (11.4 h)', color: 'from-emerald-500/20 to-teal-500/20 border-emerald-500/30' },
+            { id: 'pizzas', icon: 'fa-pizza-slice', name: 'Pizz k večeři', hours: 24, text: 'Standardních dnů', color: 'from-red-500/20 to-orange-500/20 border-red-500/30' },
+            { id: 'flights', icon: 'fa-plane', name: 'Letů NYC ➔ Praha', hours: 8.5, text: 'Přímých letů přes Atlantik (8.5 h)', color: 'from-sky-500/20 to-blue-500/20 border-sky-500/30' },
+            { id: 'friends', icon: 'fa-tv', name: 'Dílů seriálu Přátelé', hours: 0.36, text: 'Klasických 22minutových epizod', color: 'from-purple-500/20 to-pink-500/20 border-purple-500/30' },
+            { id: 'schoolWeeks', icon: 'fa-graduation-cap', name: 'Školních týdnů', hours: 168, text: 'Pětidenních výukových bloků', color: 'from-indigo-500/20 to-violet-500/20 border-indigo-500/30' },
+            { id: 'phoneCharges', icon: 'fa-battery-charging', name: 'Nabití telefonu', hours: 24, text: 'Denních cyklů baterie', color: 'from-green-500/20 to-emerald-500/20 border-green-500/30' },
+            { id: 'superbowl', icon: 'fa-football', name: 'Zápasů Super Bowlu', hours: 3.5, text: 'Včetně slavné Half-time show', color: 'from-amber-500/20 to-yellow-500/20 border-amber-500/30' }
+        ];
+
+        // Motivational quotes array
+        const QUOTES = [
+            "Každý den v USA je nová kapitola tvého příběhu. Užívej si i obyčejné úterý!",
+            "Za pár měsíců ti tenhle americký život bude moc chybět. Nasávej atmosféru!",
+            "Domů se vrátíš silnější, samostatnější a s angličtinou, kterou ti každý bude závidět.",
+            "Nečti jen dny – dělej dny, které stojí za zapamatování!",
+            "Tvoje budoucí já ti poděkuje za všechno, co v USA zkusíš mimo komfortní zónu."
+        ];
+        let currentQuoteIndex = 0;
+
+        // Key Holidays List
+        const HOLIDAYS = [
+            { name: "Halloween 🎃", date: "2026-10-31" },
+            { name: "Thanksgiving (Díkůvzdání) 🦃", date: "2026-11-26" },
+            { name: "Vánoce 🎄", date: "2026-12-25" },
+            { name: "Silvestr & Nový Rok 🎆", date: "2027-01-01" },
+            { name: "Super Bowl Sunday 🏈", date: "2027-02-14" },
+            { name: "Spring Break 🌴", date: "2027-03-20" },
+            { name: "Prom Night 💃", date: "2027-05-15" },
+            { name: "Přílet domů do ČR 🇨🇿✈️", date: "2027-06-05" }
+        ];
+
+        function updateTracker() {
+            const now = new Date();
+            const start = new Date(config.startDate);
+            const end = new Date(config.endDate);
+
+            // Format displayed dates
+            document.getElementById('displayStartDate').textContent = formatDate(start);
+            document.getElementById('displayEndDate').textContent = formatDate(end);
+
+            const totalDuration = end.getTime() - start.getTime();
+            const elapsed = now.getTime() - start.getTime();
+            const remaining = end.getTime() - now.getTime();
+
+            // Prevent negative percentages if start is in future or past end
+            let percentage = (elapsed / totalDuration) * 100;
+            if (percentage < 0) percentage = 0;
+            if (percentage > 100) percentage = 100;
+
+            // Update Big Progress Bar
+            document.getElementById('progressBar').style.width = percentage.toFixed(4) + '%';
+            document.getElementById('percentText').textContent = percentage.toFixed(4) + '%';
+
+            // Remaining Time Calculation
+            if (remaining > 0) {
+                const totalSec = Math.floor(remaining / 1000);
+                const days = Math.floor(totalSec / (3600 * 24));
+                const hours = Math.floor((totalSec % (3600 * 24)) / 3600);
+                const minutes = Math.floor((totalSec % 3600) / 60);
+                const seconds = totalSec % 60;
+
+                document.getElementById('statDays').textContent = days;
+                document.getElementById('statHours').textContent = hours;
+                document.getElementById('statMinutes').textContent = minutes;
+                document.getElementById('statSeconds').textContent = seconds;
+
+                document.getElementById('daysRemainingBadge').textContent = `Zbývá ${days} dní!`;
+
+                // Update Comparison Items
+                renderComparisons(remaining / (1000 * 3600));
+            } else {
+                document.getElementById('percentText').textContent = "100.00%";
+                document.getElementById('daysRemainingBadge').textContent = "JSI DOMA! 🎉";
+                document.getElementById('statDays').textContent = "0";
+                document.getElementById('statHours').textContent = "0";
+                document.getElementById('statMinutes').textContent = "0";
+                document.getElementById('statSeconds').textContent = "0";
+            }
+
+            renderMilestones(percentage);
+            renderHolidays(now);
+        }
+
+        function renderComparisons(remainingHours) {
+            const container = document.getElementById('comparisonsContainer');
+            container.innerHTML = '';
+
+            // Combine base and custom metrics
+            const allMetrics = [
+                ...BASE_COMPARISONS,
+                ...config.customMetrics.map((m, idx) => ({
+                    id: 'custom_' + idx,
+                    icon: 'fa-star',
+                    name: m.name,
+                    hours: m.hours,
+                    text: 'Tvoje vlastní jednotka',
+                    color: 'from-indigo-500/20 to-purple-500/20 border-indigo-500/30'
+                }))
+            ];
+
+            allMetrics.forEach(item => {
+                const count = Math.max(0, (remainingHours / item.hours)).toFixed(1);
+                const card = document.createElement('div');
+                card.className = `glass-card glass-card-hover rounded-2xl p-5 border bg-gradient-to-br ${item.color} relative overflow-hidden flex flex-col justify-between`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-slate-300">${item.name}</span>
+                            <div class="w-8 h-8 rounded-xl bg-slate-800/80 flex items-center justify-center text-indigo-400">
+                                <i class="fa-solid ${item.icon}"></i>
+                            </div>
+                        </div>
+                        <div class="text-3xl sm:text-4xl font-extrabold text-white font-mono tracking-tight mb-1">
+                            ${count}×
+                        </div>
+                    </div>
+                    <div class="text-xs text-slate-400 mt-2">
+                        ${item.text}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderMilestones(currentPercent) {
+            const container = document.getElementById('milestonesContainer');
+            container.innerHTML = '';
+
+            const milestones = [
+                { percent: 10, title: "10% – První adaptace v USA 🇺🇸" },
+                { percent: 25, title: "25% – Čtvrtina ročníku za tebou! 🎯" },
+                { percent: 50, title: "50% – PŮLKA POBYTU! 🎉" },
+                { percent: 75, title: "75% – Poslední rovinka 🏃‍♂️" },
+                { percent: 90, title: "90% – Balení kufru na obzoru 🧳" }
+            ];
+
+            milestones.forEach(m => {
+                const reached = currentPercent >= m.percent;
+                const div = document.createElement('div');
+                div.className = `flex items-center justify-between p-3 rounded-xl border ${reached ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300' : 'bg-slate-900/40 border-slate-800 text-slate-400'}`;
+                
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${reached ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-500'}">
+                            ${reached ? '✓' : m.percent + '%'}
+                        </div>
+                        <span class="text-xs sm:text-sm font-medium ${reached ? 'text-emerald-200 line-through opacity-80' : 'text-slate-200'}">${m.title}</span>
+                    </div>
+                    <span class="text-xs font-mono font-bold">${m.percent}%</span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderHolidays(now) {
+            const container = document.getElementById('holidaysContainer');
+            container.innerHTML = '';
+
+            HOLIDAYS.forEach(h => {
+                const holidayDate = new Date(h.date);
+                const diffTime = holidayDate - now;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                const passed = diffDays < 0;
+
+                const div = document.createElement('div');
+                div.className = `flex items-center justify-between p-3 rounded-xl border ${passed ? 'bg-slate-900/30 border-slate-800/50 opacity-50' : 'bg-slate-900/70 border-slate-700/60'}`;
+                
+                div.innerHTML = `
+                    <span class="text-xs sm:text-sm font-medium ${passed ? 'line-through text-slate-500' : 'text-slate-200'}">${h.name}</span>
+                    <span class="text-xs font-bold px-2.5 py-1 rounded-lg ${passed ? 'bg-slate-800 text-slate-500' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'}">
+                        ${passed ? 'Už bylo' : `za ${diffDays} dní`}
+                    </span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderBucketList() {
+            const container = document.getElementById('bucketListContainer');
+            container.innerHTML = '';
+
+            let doneCount = 0;
+            config.bucketList.forEach(item => {
+                if (item.done) doneCount++;
+
+                const div = document.createElement('div');
+                div.className = `p-3.5 rounded-xl border transition flex items-center justify-between gap-3 ${item.done ? 'bg-indigo-950/40 border-indigo-500/40 text-slate-300' : 'bg-slate-900/60 border-slate-800 hover:border-slate-700 text-slate-200'}`;
+
+                div.innerHTML = `
+                    <div class="flex items-center gap-3 flex-1 cursor-pointer overflow-hidden" onclick="toggleBucketItem(${item.id})">
+                        <div class="w-5 h-5 rounded-md border flex items-center justify-center text-xs shrink-0 ${item.done ? 'bg-indigo-500 border-indigo-400 text-slate-950 font-bold' : 'border-slate-600 bg-slate-800'}">
+                            ${item.done ? '✓' : ''}
+                        </div>
+                        <span class="text-xs sm:text-sm font-medium truncate ${item.done ? 'line-through text-slate-400' : ''}">${item.text}</span>
+                    </div>
+                    <button onclick="deleteBucketItem(${item.id})" class="text-slate-500 hover:text-red-400 p-1.5 text-xs transition rounded-lg hover:bg-slate-800" title="Smazat cíl">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+
+            document.getElementById('bucketListScore').textContent = `${doneCount} / ${config.bucketList.length} splněno`;
+        }
+
+        function toggleBucketItem(id) {
+            config.bucketList = config.bucketList.map(item => {
+                if (item.id === id) return { ...item, done: !item.done };
+                return item;
+            });
+            localStorage.setItem('usa_bucket_list', JSON.stringify(config.bucketList));
+            renderBucketList();
+        }
+
+        // Add custom bucket item
+        function addBucketItem(e) {
+            e.preventDefault();
+            const input = document.getElementById('newBucketText');
+            const text = input.value.trim();
+
+            if (text) {
+                const newItem = {
+                    id: Date.now(),
+                    text: text,
+                    done: false
+                };
+                config.bucketList.push(newItem);
+                localStorage.setItem('usa_bucket_list', JSON.stringify(config.bucketList));
+                input.value = '';
+                renderBucketList();
+            }
+        }
+
+        // Delete bucket item
+        function deleteBucketItem(id) {
+            config.bucketList = config.bucketList.filter(item => item.id !== id);
+            localStorage.setItem('usa_bucket_list', JSON.stringify(config.bucketList));
+            renderBucketList();
+        }
+
+        // Home Screen Modal Handler
+        function toggleHomeScreenModal() {
+            const modal = document.getElementById('homeScreenModal');
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('flex');
+        }
+
+        // Custom Metric Handler
+        function addCustomMetric(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('customName');
+            const hoursInput = document.getElementById('customHours');
+
+            const newMetric = {
+                name: nameInput.value.trim(),
+                hours: parseFloat(hoursInput.value)
+            };
+
+            if (newMetric.name && newMetric.hours > 0) {
+                config.customMetrics.push(newMetric);
+                localStorage.setItem('usa_custom_metrics', JSON.stringify(config.customMetrics));
+                nameInput.value = '';
+                hoursInput.value = '';
+                renderCustomMetricsChips();
+                updateTracker();
+            }
+        }
+
+        function removeCustomMetric(index) {
+            config.customMetrics.splice(index, 1);
+            localStorage.setItem('usa_custom_metrics', JSON.stringify(config.customMetrics));
+            renderCustomMetricsChips();
+            updateTracker();
+        }
+
+        function renderCustomMetricsChips() {
+            const list = document.getElementById('customMetricsList');
+            list.innerHTML = '';
+            config.customMetrics.forEach((m, idx) => {
+                const chip = document.createElement('span');
+                chip.className = 'inline-flex items-center gap-2 px-3 py-1 bg-indigo-950 border border-indigo-700/60 text-indigo-300 text-xs rounded-lg';
+                chip.innerHTML = `${m.name} (${m.hours}h) <i class="fa-solid fa-xmark cursor-pointer hover:text-red-400" onclick="removeCustomMetric(${idx})"></i>`;
+                list.appendChild(chip);
+            });
+        }
+
+        // Modal and Settings Handler
+        function toggleSettingsModal() {
+            const modal = document.getElementById('settingsModal');
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('flex');
+
+            if (!modal.classList.contains('hidden')) {
+                document.getElementById('inputStartDate').value = config.startDate;
+                document.getElementById('inputEndDate').value = config.endDate;
+            }
+        }
+
+        function saveSettings() {
+            const newStart = document.getElementById('inputStartDate').value;
+            const newEnd = document.getElementById('inputEndDate').value;
+
+            if (newStart && newEnd) {
+                config.startDate = newStart;
+                config.endDate = newEnd;
+                localStorage.setItem('usa_start_date', newStart);
+                localStorage.setItem('usa_end_date', newEnd);
+                toggleSettingsModal();
+                updateTracker();
+            }
+        }
+
+        function resetDefaults() {
+            config.startDate = DEFAULT_START;
+            config.endDate = DEFAULT_END;
+            localStorage.removeItem('usa_start_date');
+            localStorage.removeItem('usa_end_date');
+            toggleSettingsModal();
+            updateTracker();
+        }
+
+        function nextQuote() {
+            currentQuoteIndex = (currentQuoteIndex + 1) % QUOTES.length;
+            document.getElementById('quoteText').textContent = `"${QUOTES[currentQuoteIndex]}"`;
+        }
+
+        function formatDate(d) {
+            return d.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' });
+        }
+
+        // Simple Canvas Confetti Trigger
+        function triggerConfetti() {
+            const canvas = document.createElement('canvas');
+            canvas.className = 'fixed inset-0 pointer-events-none z-50 w-full h-full';
+            document.body.appendChild(canvas);
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = Array.from({ length: 80 }).map(() => ({
+                x: canvas.width / 2,
+                y: canvas.height / 2,
+                vx: (Math.random() - 0.5) * 12,
+                vy: (Math.random() - 0.7) * 14,
+                color: ['#ef4444', '#3b82f6', '#f59e0b', '#10b981', '#a855f7'][Math.floor(Math.random() * 5)],
+                size: Math.random() * 8 + 4,
+                alpha: 1
+            }));
+
+            let frame = 0;
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.3; // gravity
+                    p.alpha -= 0.015;
+                    ctx.globalAlpha = Math.max(0, p.alpha);
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                frame++;
+                if (frame < 80) {
+                    requestAnimationFrame(animate);
+                } else {
+                    canvas.remove();
+                }
+            }
+            animate();
+        }
+
+        // Initialize application on load
+        window.onload = function() {
+            renderCustomMetricsChips();
+            renderBucketList();
+            updateTracker();
+            // Live update ticker every second
+            setInterval(updateTracker, 1000);
+        };
+    </script>
+</body>
+</html>
